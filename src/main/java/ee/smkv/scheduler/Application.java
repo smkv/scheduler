@@ -24,7 +24,7 @@ public class Application {
     @Bean(name = TARGET_DATA_SOURCE)
     @Qualifier(TARGET_DATA_SOURCE)
     DataSource createTargetDataSource() {
-        return DataSourceBuilder.createBasicDataSourceFromConfig("task");
+        return DataSourceBuilder.createBasicDataSourceFromConfig("target");
     }
 
 

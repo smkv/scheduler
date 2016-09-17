@@ -25,6 +25,7 @@ public abstract class TaskExecutor implements Runnable {
     }
 
     protected void handleError(Exception e) {
+        e.printStackTrace();
         log(e.getMessage());
         listener.onError(task, e);
     }
