@@ -13,7 +13,6 @@ public class Application {
 
     public static final String SCHEDULER_DATA_SOURCE = "schedulerDataSource";
     public static final String TARGET_DATA_SOURCE = "targetDataSource";
-    public static final long CHECK_TASK_RATE = Config.getLongProperty("task.check.rate" , 5000L);
 
     @Bean(name = SCHEDULER_DATA_SOURCE)
     @Qualifier(SCHEDULER_DATA_SOURCE)
