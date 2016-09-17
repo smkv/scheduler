@@ -19,6 +19,7 @@ public class SqlTaskExecutor extends TaskExecutor {
     protected void executeCommand(String command) throws SQLException, ClassNotFoundException {
         try (Connection connection = dataSource.getConnection()) {
             try (Statement statement = connection.createStatement()) {
+                log(command);
                 boolean success = statement.execute(command);
                 for (Throwable throwable : statement.getWarnings()) {
                     output("Warning: " + throwable.getMessage());
