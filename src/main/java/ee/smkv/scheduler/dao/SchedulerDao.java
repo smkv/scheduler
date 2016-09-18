@@ -3,17 +3,14 @@ package ee.smkv.scheduler.dao;
 import ee.smkv.scheduler.Application;
 import ee.smkv.scheduler.Config;
 import ee.smkv.scheduler.model.Task;
-import ee.smkv.scheduler.model.Type;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.SqlOutParameter;
 import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Types;
 import java.util.List;
 
@@ -39,40 +36,37 @@ public class SchedulerDao {
         return new SimpleJdbcCall(dataSource).withoutProcedureColumnMetaDataAccess();
     }
 
-    public void markTaskStarted(Task task) {
-        createSimpleJdbcCall()
-                .withProcedureName("set_executing_status")
+    public Long createExecutionId(Task task) {
+        return ((Number) createSimpleJdbcCall()
+                .withProcedureName("create_execution")
                 .declareParameters(new SqlParameter("i_task_id", Types.INTEGER))
-                .execute(task.getId());
+                .declareParameters(new SqlOutParameter("o_execution_id", Types.INTEGER))
+                .execute(task.getId())
+                .get("o_execution_id"))
+                .longValue();
     }
 
-    public void markTaskFinishedSuccessfully(Task task) {
+    public void executionDone(Long executionId) {
         createSimpleJdbcCall()
-                .withProcedureName("set_done_status")
-                .declareParameters(new SqlParameter("i_task_id", Types.INTEGER))
-                .execute(task.getId());
+                .withProcedureName("execution_done")
+                .declareParameters(new SqlParameter("i_execution_id", Types.INTEGER))
+                .execute(executionId);
     }
 
-    public void markTaskExecutionFailed(Task task, String message) {
+    public void executionFailed(Long executionId, String message) {
         createSimpleJdbcCall()
-                .withProcedureName("set_fail_status")
-                .declareParameters(new SqlParameter("i_task_id", Types.INTEGER))
+                .withProcedureName("execution_failed")
+                .declareParameters(new SqlParameter("i_execution_id", Types.INTEGER))
                 .declareParameters(new SqlParameter("i_message", Types.VARCHAR))
-                .execute(task.getId() , message);
+                .execute(executionId, message);
     }
 
-    public void appendExecutionOutput(Task task, String output) {
+    public void appendExecutionOutput(Long executionId, String output) {
         createSimpleJdbcCall()
                 .withProcedureName("append_executing_log")
-                .declareParameters(new SqlParameter("i_task_id", Types.INTEGER))
+                .declareParameters(new SqlParameter("i_execution_id", Types.INTEGER))
                 .declareParameters(new SqlParameter("i_log_record", Types.VARCHAR))
-                .execute(task.getId() , output);
+                .execute(executionId, output);
     }
 
-    private static class TaskRowMapper implements RowMapper<Task> {
-        @Override
-        public Task mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new Task(rs.getLong("ID"), Type.valueOf(rs.getString("TYPE")), rs.getString("COMMAND"));
-        }
-    }
 }

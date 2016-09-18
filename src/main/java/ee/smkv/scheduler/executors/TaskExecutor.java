@@ -5,18 +5,18 @@ import ee.smkv.scheduler.model.Task;
 import java.util.Date;
 
 public abstract class TaskExecutor implements Runnable {
-
-    Task task;
+    final Long executionId;
+    final Task task;
     TaskExecutionListener listener;
 
-    public TaskExecutor(Task task) {
+    public TaskExecutor(Long executionId, Task task) {
+        this.executionId = executionId;
         this.task = task;
     }
 
     @Override
     public void run() {
         try {
-            markStarted();
             executeCommand(task.getCommand());
             markFinished();
         } catch (Exception e) {
@@ -27,24 +27,23 @@ public abstract class TaskExecutor implements Runnable {
     protected void handleError(Exception e) {
         e.printStackTrace();
         log(e.getMessage());
-        listener.onError(task, e);
+        listener.onError(this, e);
     }
 
     private void markFinished() {
         log(String.format("Finished at %1$tF %1$tT", new Date()));
-        listener.onFinish(task);
-    }
-
-    private void markStarted() {
-        log(String.format("Started at %1$tF %1$tT", new Date()));
-        listener.onStart(task);
+        listener.onFinish(this);
     }
 
     protected abstract void executeCommand(String command) throws Exception;
 
     protected void output(String output) {
         log(output);
-        listener.onOutput(task, output);
+        listener.onOutput(this, output);
+    }
+
+    public Long getExecutionId() {
+        return executionId;
     }
 
     public void setListener(TaskExecutionListener listener) {

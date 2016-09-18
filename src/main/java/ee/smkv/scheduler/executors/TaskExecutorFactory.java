@@ -15,12 +15,12 @@ public class TaskExecutorFactory {
     @Qualifier(Application.TARGET_DATA_SOURCE)
     DataSource dataSource;
 
-    public TaskExecutor createExecutorForTask(Task task) {
+    public TaskExecutor createExecutorForTask(Long executionId, Task task) {
         switch (task.getType()) {
             case SQL:
-                return new SqlTaskExecutor(task, dataSource);
+                return new SqlTaskExecutor(executionId, task, dataSource);
             case SHELL:
-                return new ShellTaskExecutor(task);
+                return new ShellTaskExecutor(executionId, task);
         }
         throw new IllegalArgumentException("Unsupported  type of task: " + task.getType());
     }

@@ -11,8 +11,8 @@ import java.sql.*;
 
 public class SqlTaskExecutor extends TaskExecutor {
     final DataSource dataSource;
-    public SqlTaskExecutor(Task task, DataSource dataSource) {
-        super(task);
+    public SqlTaskExecutor(Long executionId , Task task, DataSource dataSource) {
+        super(executionId, task);
         this.dataSource = dataSource;
     }
 

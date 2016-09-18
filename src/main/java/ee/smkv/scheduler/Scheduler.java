@@ -10,6 +10,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -32,33 +34,35 @@ public class Scheduler implements TaskExecutionListener {
         System.out.println("Checking for new tasks");
         List<Task> tasks = schedulerDao.getTasksForExecutingNow();
         for (Task task : tasks) {
-            TaskExecutor executorForTask = taskExecutorFactory.createExecutorForTask(task);
-            executorForTask.setListener(this);
-            executorService.execute(executorForTask);
+            executeTask(task);
         }
         if(tasks.isEmpty()){
             System.out.println("There are no tasks for execute now");
         }
     }
 
+    private void executeTask(Task task) {
+        Long executionId = schedulerDao.createExecutionId(task);
+        TaskExecutor executorForTask = taskExecutorFactory.createExecutorForTask(executionId , task);
+        executorForTask.setListener(this);
+        executorService.execute(executorForTask);
+    }
+
 
     @Override
-    public void onStart(Task task) {
-        schedulerDao.markTaskStarted(task);
+    public void onFinish(TaskExecutor taskExecutor) {
+        schedulerDao.executionDone(taskExecutor.getExecutionId());
     }
 
     @Override
-    public void onFinish(Task task) {
-        schedulerDao.markTaskFinishedSuccessfully(task);
+    public void onError(TaskExecutor taskExecutor, Throwable throwable) {
+        StringWriter out = new StringWriter();
+        throwable.printStackTrace(new PrintWriter(out));
+        schedulerDao.executionFailed(taskExecutor.getExecutionId(), out.toString());
     }
 
     @Override
-    public void onError(Task task, Throwable throwable) {
-        schedulerDao.markTaskExecutionFailed(task, throwable.getMessage());
-    }
-
-    @Override
-    public void onOutput(Task task, String output) {
-        schedulerDao.appendExecutionOutput(task, output);
+    public void onOutput(TaskExecutor taskExecutor, String output) {
+        schedulerDao.appendExecutionOutput(taskExecutor.getExecutionId(), output);
     }
 }

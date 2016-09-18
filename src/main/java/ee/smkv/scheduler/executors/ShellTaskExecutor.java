@@ -7,8 +7,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class ShellTaskExecutor extends TaskExecutor {
-    public ShellTaskExecutor(Task task) {
-        super(task);
+    public ShellTaskExecutor(Long executionId , Task task) {
+        super(executionId, task);
     }
 
     @Override

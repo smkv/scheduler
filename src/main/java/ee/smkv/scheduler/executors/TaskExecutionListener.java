@@ -1,13 +1,10 @@
 package ee.smkv.scheduler.executors;
 
-import ee.smkv.scheduler.model.Task;
-
 public interface TaskExecutionListener {
-    void onStart(Task task);
 
-    void onFinish(Task task);
+    void onFinish(TaskExecutor taskExecutor);
 
-    void onError(Task task, Throwable throwable);
+    void onError(TaskExecutor taskExecutor, Throwable throwable);
 
-    void onOutput(Task task, String output);
+    void onOutput(TaskExecutor taskExecutor, String output);
 }
