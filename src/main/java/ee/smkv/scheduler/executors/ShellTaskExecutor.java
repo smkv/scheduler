@@ -13,7 +13,7 @@ public class ShellTaskExecutor extends TaskExecutor {
 
     @Override
     protected void executeCommand(String command) throws IOException, InterruptedException {
-        log(command);
+        logger.info(command);
         Process process = Runtime.getRuntime().exec(command);
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
             String line = "";

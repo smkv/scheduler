@@ -20,7 +20,7 @@ public class SqlTaskExecutor extends TaskExecutor {
     protected void executeCommand(String command) throws SQLException, IOException {
         try (Connection connection = dataSource.getConnection()) {
             try (Statement statement = connection.createStatement()) {
-                log(command);
+                logger.info(command);
                 boolean hasResults = statement.execute(command);
                 SQLWarning warnings = statement.getWarnings();
                 if (warnings != null) {

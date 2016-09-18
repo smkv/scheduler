@@ -29,7 +29,7 @@ public class ResultSetPrinter {
             int columnDisplaySize = metaData.getColumnDisplaySize(columnIndex);
             String columnName = metaData.getColumnName(columnIndex);
             if (columnIndex > 1) writer.write(" | ");
-            writer.write(String.format("%" + columnDisplaySize + "s", columnName));
+            writer.write(String.format("%-" + columnDisplaySize + "s", columnName));
         }
         writer.write('\n');
     }
@@ -39,7 +39,7 @@ public class ResultSetPrinter {
             int columnDisplaySize = metaData.getColumnDisplaySize(columnIndex);
             String data = resultSet.getString(columnIndex);
             if (columnIndex > 1) writer.write(" | ");
-            writer.write(String.format("%" + columnDisplaySize + "s", data));
+            writer.write(String.format("%-" + columnDisplaySize + "s", data));
         }
         writer.write('\n');
     }

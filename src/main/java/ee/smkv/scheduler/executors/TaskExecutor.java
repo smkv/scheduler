@@ -1,15 +1,19 @@
 package ee.smkv.scheduler.executors;
 
 import ee.smkv.scheduler.model.Task;
+import org.apache.log4j.Logger;
+import org.apache.log4j.MDC;
+import org.apache.log4j.NDC;
 
 import java.util.Date;
 
 public abstract class TaskExecutor implements Runnable {
+    final Logger logger = Logger.getLogger(getClass());
     final Long executionId;
     final Task task;
     TaskExecutionListener listener;
 
-    public TaskExecutor(Long executionId, Task task) {
+    TaskExecutor(Long executionId, Task task) {
         this.executionId = executionId;
         this.task = task;
     }
@@ -17,28 +21,31 @@ public abstract class TaskExecutor implements Runnable {
     @Override
     public void run() {
         try {
+            NDC.push("TASK #" + task.getId());
+            logger.info("Started");
             executeCommand(task.getCommand());
-            markFinished();
+            done();
         } catch (Exception e) {
             handleError(e);
+        }finally {
+            NDC.pop();
         }
     }
 
-    protected void handleError(Exception e) {
-        e.printStackTrace();
-        log(e.getMessage());
-        listener.onError(this, e);
+    private void done() {
+        logger.info("Done");
+        listener.onFinish(this);
     }
 
-    private void markFinished() {
-        log(String.format("Finished at %1$tF %1$tT", new Date()));
-        listener.onFinish(this);
+    private void handleError(Exception e) {
+        logger.error(e.getMessage() ,e);
+        listener.onError(this, e);
     }
 
     protected abstract void executeCommand(String command) throws Exception;
 
-    protected void output(String output) {
-        log(output);
+    void output(String output) {
+        logger.info(output);
         listener.onOutput(this, output);
     }
 
@@ -50,7 +57,4 @@ public abstract class TaskExecutor implements Runnable {
         this.listener = listener;
     }
 
-    protected void log(String message){
-        System.out.printf("TASK #%d >>> %s%n" , task.getId() , message );
-    }
 }
