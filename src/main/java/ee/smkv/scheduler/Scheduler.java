@@ -5,13 +5,12 @@ import ee.smkv.scheduler.executors.TaskExecutionListener;
 import ee.smkv.scheduler.executors.TaskExecutor;
 import ee.smkv.scheduler.executors.TaskExecutorFactory;
 import ee.smkv.scheduler.model.Task;
+import ee.smkv.scheduler.utils.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -36,18 +35,17 @@ public class Scheduler implements TaskExecutionListener {
         for (Task task : tasks) {
             executeTask(task);
         }
-        if(tasks.isEmpty()){
+        if (tasks.isEmpty()) {
             System.out.println("There are no tasks for execute now");
         }
     }
 
     private void executeTask(Task task) {
         Long executionId = schedulerDao.createExecutionId(task);
-        TaskExecutor executorForTask = taskExecutorFactory.createExecutorForTask(executionId , task);
+        TaskExecutor executorForTask = taskExecutorFactory.createExecutorForTask(executionId, task);
         executorForTask.setListener(this);
         executorService.execute(executorForTask);
     }
-
 
     @Override
     public void onFinish(TaskExecutor taskExecutor) {
@@ -56,9 +54,7 @@ public class Scheduler implements TaskExecutionListener {
 
     @Override
     public void onError(TaskExecutor taskExecutor, Throwable throwable) {
-        StringWriter out = new StringWriter();
-        throwable.printStackTrace(new PrintWriter(out));
-        schedulerDao.executionFailed(taskExecutor.getExecutionId(), out.toString());
+        schedulerDao.executionFailed(taskExecutor.getExecutionId(), ExceptionUtils.getStackTrace(throwable));
     }
 
     @Override
