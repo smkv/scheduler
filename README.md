@@ -9,7 +9,7 @@ A simple task scheduler based on database with java agents for executing tasks.
 
 The main logic, which task have to be executed, is concentrated inside stored procedures, the Java part is only for executing processes by instructions which came from the database.
 
-
+The database interface are:
 * ```get_next_task_to_execute(i_machine VARCHAR)``` - returns a cursor with task which will need to execute (task.id, task.type and task.command)
 * ```create_execution(i_task_id INT, o_execution_id INT)``` - creates new execution process (record in executions table)
 * ```append_executing_log(i_execution_id INT, i_log_record TEXT)``` - stores execution output for debugging/monitoring purpous
