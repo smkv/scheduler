@@ -48,9 +48,15 @@ public class Scheduler implements TaskExecutionListener {
 
     private void executeTask(Task task) {
         Long executionId = schedulerDao.createExecutionId(task);
-        TaskExecutor executorForTask = taskExecutorFactory.createExecutorForTask(executionId, task);
-        executorForTask.setListener(this);
-        executorService.execute(executorForTask);
+        try {
+            TaskExecutor executorForTask = taskExecutorFactory.createExecutorForTask(executionId, task);
+            executorForTask.setListener(this);
+            executorService.execute(executorForTask);
+        }
+        catch (Exception e) {
+            logger.error("Creating task execution failed: " + e.getMessage(), e);
+            schedulerDao.executionFailed(executionId, ExceptionUtils.getStackTrace(e));
+        }
     }
 
     @Override
