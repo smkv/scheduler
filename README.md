@@ -51,6 +51,6 @@ Contains output of tasks execution. In case of SHELL - it is standard output str
 
 ## NB!
 
-Current database design supports execute tasks only once per day.
+Current database design supports execute of each task only once per day.
 
 
