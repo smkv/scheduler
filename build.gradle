@@ -5,6 +5,19 @@ apply plugin: 'java'
 
 sourceCompatibility = 1.8
 
+
+//create a single Jar with all dependencies
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Title': rootProject.name,
+                   'Implementation-Version': version,
+                   'Main-Class': 'Launcher'
+    }
+    baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
 repositories {
     mavenCentral()
 }
