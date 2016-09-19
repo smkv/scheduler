@@ -6,7 +6,8 @@ A simple task scheduler based on database with java agents for executing tasks.
 ![Image of diagram]
 (https://github.com/smkv/scheduler/raw/master/sql/tables_diagram.png)
 
-All operations with table data does thru stored procedures
+
+The main logic, which task have to be executed, is concentrated inside stored procedures, the Java part is only for executing processes by instructions which came from the database.
 
 
 * ```get_next_task_to_execute(i_machine VARCHAR)``` - returns a cursor with task which will need to execute (task.id, task.type and task.command)
