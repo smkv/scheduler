@@ -43,7 +43,7 @@ DROP TABLE IF EXISTS `executions`;
 CREATE TABLE `executions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `task_id` int(11) NOT NULL,
-  `start_datetime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `start_datetime` datetime NOT NULL,
   `finished` int(11) DEFAULT NULL,
   `failed` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -176,7 +176,7 @@ BEGIN
 
 update executions
 set finished = 1 , failed = 0
-where execution_id = i_execution_id;
+where id = i_execution_id;
 
 END ;;
 DELIMITER ;
@@ -201,7 +201,7 @@ call append_executing_log(i_execution_id , i_message);
 
 update executions
 set finished = 1 , failed = 1
-where execution_id = i_execution_id;
+where id = i_execution_id;
 
 END ;;
 DELIMITER ;
