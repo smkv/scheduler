@@ -3,6 +3,7 @@ package ee.smkv.scheduler.executors;
 
 import ee.smkv.scheduler.model.Task;
 import ee.smkv.scheduler.utils.ResultSetPrinter;
+import ee.smkv.scheduler.utils.StringUtils;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -32,8 +33,8 @@ public class SqlTaskExecutor extends TaskExecutor {
                 while (hasResults){
                     ResultSetPrinter printer = new ResultSetPrinter(statement.getResultSet());
                     StringWriter writer = new StringWriter();
-                    printer.print(writer);
-                    output(writer.toString());
+                    printer.printTo(writer);
+                    StringUtils.splitLines(writer.toString()).forEach(this::output);
                     hasResults = statement.getMoreResults();
                 }
             }

@@ -1,7 +1,6 @@
 package ee.smkv.scheduler.utils;
 
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -17,30 +16,32 @@ public class ResultSetPrinter {
     }
 
 
-    public void print(Writer writer) throws SQLException, IOException {
-        printHeader(writer);
+    public void printTo(Writer writer) throws SQLException, IOException {
+        BufferedWriter bufferedWriter = new BufferedWriter(writer);
+        printHeader(bufferedWriter);
         while (resultSet.next()) {
-            printDataRow(writer);
+            printDataRow(bufferedWriter);
         }
+        bufferedWriter.flush();
     }
 
-    private void printHeader(Writer writer) throws SQLException, IOException {
+    private void printHeader(BufferedWriter writer) throws SQLException, IOException {
         for (int columnIndex = 1; columnIndex <= metaData.getColumnCount(); columnIndex++) {
             int columnDisplaySize = metaData.getColumnDisplaySize(columnIndex);
             String columnName = metaData.getColumnName(columnIndex);
             if (columnIndex > 1) writer.write(" | ");
             writer.write(String.format("%-" + columnDisplaySize + "s", columnName));
         }
-        writer.write('\n');
+        writer.newLine();
     }
 
-    private void printDataRow(Writer writer) throws SQLException, IOException {
+    private void printDataRow(BufferedWriter writer) throws SQLException, IOException {
         for (int columnIndex = 1; columnIndex <= metaData.getColumnCount(); columnIndex++) {
             int columnDisplaySize = metaData.getColumnDisplaySize(columnIndex);
             String data = resultSet.getString(columnIndex);
             if (columnIndex > 1) writer.write(" | ");
             writer.write(String.format("%-" + columnDisplaySize + "s", data));
         }
-        writer.write('\n');
+        writer.newLine();
     }
 }
