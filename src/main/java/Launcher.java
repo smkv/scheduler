@@ -7,21 +7,22 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 public class Launcher {
 
+    private static final Logger LOG = Logger.getLogger(Launcher.class);
+    private static final String MACHINE_NAME = Config.getProperty(Application.MACHINE_NAME_CONFIG_PARAMETER);
+
     public static void main(String[] args) throws Exception {
         NDC.push("MAIN");
-        Logger logger = Logger.getLogger(Launcher.class);
-        String machineName = Config.getProperty(Application.MACHINE_NAME_CONFIG_PARAMETER);
-        logger.info(String.format("Staring scheduler for machine '%s'", machineName));
+        LOG.info(String.format("Staring scheduler for machine '%s'", MACHINE_NAME));
+        Runtime.getRuntime().addShutdownHook(new ShutdownHook());
+        new AnnotationConfigApplicationContext(Application.class);
+    }
 
-        Runtime.getRuntime().addShutdownHook(new Thread(){
-            @Override
-            public void run() {
-                logger.info(String.format("Stopping scheduler for machine '%s'", machineName));
-            }
-        });
+    private static class ShutdownHook extends Thread {
 
-        AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
-        applicationContext.register(Application.class);
-        applicationContext.refresh();
+        @Override
+        public void run() {
+            LOG.info(String.format("Stopping scheduler for machine '%s'", MACHINE_NAME));
+        }
+
     }
 }
